@@ -2,8 +2,11 @@ package com.example.lma;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.databinding.Observable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +31,11 @@ public class MainActivity extends AppCompatActivity {
     private MainActivityClickHandlers handlers;
     private Category selectedCategory;
 
+    //RecycleView
+    private RecyclerView courseRecycleView;
+    private CourseAdapter courseAdapter;
+    private ArrayList<Course> coursesList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +48,13 @@ public class MainActivity extends AppCompatActivity {
         handlers = new MainActivityClickHandlers();
         activityMainBinding.setClickHandlers(handlers);
 
-        mainActivityViewModel.getAllCategories().observe(this, new Observer<List<Category>>() {
-            @Override
-            public void onChanged(List<Category> categories) {
-                categoriesList = (ArrayList<Category>) categories;
-                for (Category c: categories){
-                    Log.i("TAG", c.getCategoryName());
-                }
-
-                showOnSpinner();
+        mainActivityViewModel.getAllCategories().observe(this, categories -> {
+            categoriesList = (ArrayList<Category>) categories;
+            for (Category c: categories){
+                Log.e("___CATEGORIES", c.getCategoryName());
             }
+
+            showOnSpinner();
         });
 
         mainActivityViewModel.getCoursesOfSelectedCategory(1).observe(this,
@@ -74,6 +79,28 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.setSpinnerAdapter(categoryArrayAdapter);
     }
 
+
+    public void LoadCoursesArrayList(int categoryID){
+        mainActivityViewModel.getCoursesOfSelectedCategory(categoryID).observe(this, new Observer<List<Course>>() {
+            @Override
+            public void onChanged(List<Course> courses) {
+                coursesList = (ArrayList<Course>) courses;
+                LoadRecyclerView();
+            }
+        });
+    }
+
+    private void LoadRecyclerView() {
+        courseRecycleView = activityMainBinding.secondaryLayout.recyclerView;
+        courseRecycleView.setLayoutManager(new LinearLayoutManager(this));
+        courseRecycleView.setHasFixedSize(true);
+
+        courseAdapter = new CourseAdapter();
+        courseRecycleView.setAdapter(courseAdapter);
+
+        courseAdapter.setCourses(coursesList);
+    }
+
     public class MainActivityClickHandlers{
         public void onFABClicked(View view){
             Toast.makeText(getApplicationContext(), "FAB CLICKED", Toast.LENGTH_SHORT).show();
@@ -87,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
             Toast.makeText(parent.getContext(), " " + message, Toast.LENGTH_SHORT).show();
 
+            LoadCoursesArrayList(selectedCategory.getId());
         }
     }
 }

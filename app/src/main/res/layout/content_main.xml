@@ -9,6 +9,22 @@
             type="android.widget.ArrayAdapter" />
 
         <variable
+            name="parent"
+            type="android.widget.AdapterView" />
+
+        <variable
+            name="view"
+            type="android.view.View" />
+
+        <variable
+            name="pos"
+            type="Integer" />
+
+        <variable
+            name="id"
+            type="Integer" />
+
+        <variable
             name="secondaryClickHandler"
             type="com.example.lma.MainActivity.MainActivityClickHandlers" />
 
@@ -28,11 +44,16 @@
             android:id="@+id/spinner"
             android:layout_margin="8dp"
             app:adapter="@{secondarySpinnerAdapter}"
-            android:onItemSelected = "@{secondaryClickHandler::onSelectItem}" />
+            android:onItemSelected = "@{() -> secondaryClickHandler.onSelectItem(parent, view, pos, id)}" />
 
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:id="@+id/recyclerView" />
 
 
     </LinearLayout>
 
 </layout>
-

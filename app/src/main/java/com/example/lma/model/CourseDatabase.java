@@ -1,12 +1,20 @@
 package com.example.lma.model;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+
+import com.example.lma.R;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 @Database(entities = {Category.class, Course.class}, version = 1)
 public abstract class CourseDatabase extends RoomDatabase {
@@ -33,6 +41,57 @@ public abstract class CourseDatabase extends RoomDatabase {
             super.onCreate(db);
 
             //Insert data when db is created
+
+            InitializeData();
         }
     };
+
+    private static void InitializeData() {
+        Log.e("___DB","InitializeData");
+        CourseDAO courseDAO = instance.courseDAO();
+        CategoryDAO categoryDAO = instance.categoryDAO();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                Category category1 = new Category();
+                category1.setCategoryName("Front End");
+                category1.setCategoryDescription("Web Development Interface");
+
+                Category category2 = new Category();
+                category2.setCategoryName("Back End");
+                category2.setCategoryDescription("Web Development Database");
+
+                categoryDAO.insert(category1);
+                categoryDAO.insert(category2);
+
+                Course course1 = new Course();
+                course1.setCourseName("HTML");
+                course1.setUnitPrice("100$");
+                course1.setCategoryID(1);
+
+                Course course2 = new Course();
+                course2.setCourseName("CSS");
+                course2.setUnitPrice("100$");
+                course2.setCategoryID(1);
+
+                Course course3 = new Course();
+                course3.setCourseName("PHP");
+                course3.setUnitPrice("400");
+                course3.setCategoryID(1);
+
+                Course course4 = new Course();
+                course4.setCourseName("AJAX");
+                course4.setUnitPrice("200");
+                course4.setCategoryID(2);
+
+                courseDAO.insert(course1);
+                courseDAO.insert(course2);
+                courseDAO.insert(course3);
+                courseDAO.insert(course4);
+            }
+        });
+
+    }
 }
